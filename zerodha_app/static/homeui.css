@@ -1,0 +1,392 @@
+/* FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+.raleway-action {
+    font-family: "Raleway", serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: small;
+}
+
+
+/* BODY */
+body {
+    overflow: hidden;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    padding: 0.6rem 1.5rem 0.6rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #45403f2b;
+}
+
+.leftNav {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    display: flex;
+    width: 32%;
+    justify-content: space-between;
+    font-size: small;
+    font-weight: 500;
+    color: rgb(75, 72, 72);
+}
+
+
+#Nifty,
+#SenSex {
+    cursor: pointer;
+}
+
+#n50-points,
+#sen-points {
+    color: #f47b53;
+}
+
+.diff {
+    color: rgb(93, 87, 87);
+    font-weight: 400;
+}
+
+/* Logo */
+#Layer_1 {
+    filter: none;
+    /* Disable any unwanted filter effects */
+}
+
+.rightNav {
+    width: 40%;
+}
+
+.Actions-rightNav {
+    display: flex;
+    justify-content: space-between;
+}
+
+.Navpage {
+    list-style: none;
+}
+
+.Navpage>a {
+    position: relative;
+}
+
+
+.Actions-rightNav>li>a {
+    text-decoration: none;
+    color: black;
+}
+
+.Actions-rightNav li:hover {
+    color:#f47b53 ;
+}
+
+.Actions-rightNav li:hover a {
+    color:#f47b53;
+}
+
+/* DashBoard Content STOCKS */
+
+.dashContent {
+    display: flex;
+    width: 100%;
+    margin: 0 2rem 2rem 0;
+    justify-content: space-evenly;
+}
+
+.stocks {
+    width: 28%;
+}
+
+#stock_list_h3{
+    width: auto;
+    margin: auto;
+    font-size: larger;
+    font-weight: 500;
+    color: #ff6939;
+}
+
+#stockForm{
+    display: flex;
+    justify-content:space-between;
+    height: 1.5rem;
+    margin: 0.3rem 0 .3rem 0;
+    border-right: 1px solid #45403f2b;
+}
+
+#customSym{
+    width:69%;
+    text-align: center;
+    border: none;
+    border-bottom:2px solid #858585;
+    color:#ff6939;
+    border-radius: 10px 0 0 10px;
+}
+
+#customSym::placeholder{
+    text-align: center;
+    color: #f47b53;
+}
+
+#customSym:active , #customSym:focus{
+    outline: none;
+    border:2px solid #858585;
+}
+
+#customSearch{
+    width:30%;
+    background-color: transparent;
+    border: 2px solid #858585;
+    color: #ff6939;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
+}
+
+.stock-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-weight: 400;
+    margin-bottom: 10rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.stock-list>li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-top: 0.5px solid #45403f2b;
+    border-right: 0.5px solid #45403f2b;
+}
+
+.Br-Bl-diff {
+    color: #45403fba;
+    font-size: small;
+    font-weight: 300;
+}
+
+.stock-list>li:last-child {
+    border-bottom: 0.5px solid #45403f2b;
+}
+
+.stock-list>li>a {
+    text-decoration: none;
+}
+
+main {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+main>section>select {
+    width: 5rem;
+}
+
+#graphAttrs {
+    padding: .5rem;
+    width: 100%;
+    border-bottom: 1px solid #45403f2b;
+    display: block;
+}
+
+
+.placeholder-message {
+    color: #888;
+    font-size: 2rem;
+    position: relative;
+    top:15rem;
+    left: 20rem;
+}
+
+
+#stockGraph {
+    height: 82vh;
+    width: 100%;
+}
+
+/* ACTIVE PAGE */
+.Actions-rightNav>li.Active>a {
+    color: #ff6939;
+    font-weight: 600;
+}
+
+/* STOCK COLOR */
+.Bullish>a,
+.Bullish>p {
+    color: green;
+    align-self: center;
+}
+
+.Bullish>p>data::after {
+    font-family: 'Material Symbols Outlined';
+    /* Specify the font */
+    content: '\00a0 stat_2';
+    vertical-align: middle;
+    color: green;
+}
+
+
+.Bearish>a,
+.Bearish>p {
+    color: red;
+    align-self: center;
+}
+
+.Bearish>p>data::after {
+    font-family: 'Material Symbols Outlined';
+    /* Specify the font family */
+    content: '\00a0 stat_minus_2';
+    vertical-align: middle;
+    color: red;
+}
+
+
+/* ChatBot */
+.chatBot {
+    position: fixed;
+    width: 30%;
+    height: 35rem;
+    top: 2.5rem;
+    background-color: #ddd;
+    color: rgb(63, 63, 63);
+    text-align: center;
+    border-radius: 1rem;
+    display: none;
+    flex-direction: column; /* Ensures children are stacked vertically */
+    overflow: hidden; /* Prevents children from overflowing */
+    border: 2px solid #ff6939;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: larger;
+    z-index: 999;
+}
+
+.chat {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+.chatBot form {
+    display: flex;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 1rem 1rem; /* Adds rounded corners at the bottom */
+}
+
+#chatBox {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    margin-right: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#btnChat {
+    width: 50px;
+    background-color: #ff6939;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#btnChat:hover {
+    background-color: #f47b53; /* Adds hover effect for button */
+}
+
+
+.loading {
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+    display: none; /* Initially hidden */
+    position: relative;
+}
+
+.loading::after {
+    content: "⏳";
+    font-size: 24px;
+    display: inline-block; /* Ensure it has a box model for transform to work */
+    animation: spin 1s infinite alternate; /* Use linear for smooth rotation */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(180deg); }
+}
+
+.resp{
+    border:2px solid rgb(255, 136, 0);
+    border-radius: 3px;
+    padding: .2rem;
+    margin: .2rem;
+    text-align: center;
+}
+
+.req{
+    border:2px solid rgb(8, 4, 0);
+    border-radius: 3px;
+    padding: .2rem;
+    margin: 0.2rem;
+    text-align: center;
+}
+
+
+.ai-button {
+    background-color: transparent; /* Primary color */
+    color: black; /* Text color */
+    border: 2px solid black; /* Removes default border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px 20px; /* Padding for size */
+    font-size: 16px; /* Font size */
+    font-weight: bold; /* Bold text */
+    cursor: pointer; /* Pointer on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
+}
+
+.ai-button:hover { /* Slightly darker green on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+}
+
+.ai-button:active { /* Darker color on click */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+    transform: translateY(1px); /* Slight press effect */
+}
+/* Animations
+
+.Navpage>a::before{
+    content : '';
+    display:block;
+    position:absolute;
+    left:0;
+    right: 0;
+    bottom: 0;
+    top:13px;
+    background-color: #f47a51c3;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    z-index: -1;
+    transform-origin: left;
+}
+
+.Navpage>a:hover::before{
+    transform: scaleX(1);
+    transform-origin: left;
+}

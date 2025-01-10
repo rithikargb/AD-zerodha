@@ -1,0 +1,370 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zerodha-^NSEI</title>
+    <link rel="stylesheet" href="{% static 'homeui.css' %}">
+    <link rel="shortcut icon" href="{% static 'kite.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="leftNav">
+            <p id="Nifty" onclick="generateGraph('^NSEI')">NIFTY 50 <data id="n50-points">{{nifty|floatformat:4 }}  &nbsp;<data class="diff">{{ nifty_diff|floatformat:2 }}</data></data></p>
+            <p id="SenSex" onclick="generateGraph('^BSESN')">SENSEX <data id="sen-points">{{sensex |floatformat:4 }}  &nbsp;<data class="diff">{{ sensex_diff|floatformat:2 }}</data></data></p>
+            <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 60" width="20" height="20">
+                <defs>
+                    <style>.cls-1{fill:#f6461a !important;}.cls-2{fill:#db342c !important;}</style>
+                </defs>
+                <title>Kite logo trimmed</title>
+                <polygon class="cls-1" points="30 0 0 30 30 60 60 30 90 0 30 0"/>
+                <polygon class="cls-2" points="30 60 60 30 90 60 30 60"/>
+            </svg>
+            
+        </div>
+        <div class="rightNav raleway-action">
+            <ul class="Actions-rightNav">
+                <li class="Active Navpage"><a href="">Dashboard</a></li>
+                <li class="Navpage" ><a href="">Orders</a></li>
+                <li class="Navpage" ><a href="">Holdings</a></li>
+                <li class="Navpage" ><a href="">Positions</a></li>
+                <li class="Navpage" ><a href="">Bids</a></li>
+                <li class="Navpage" ><a href="">Funds</a></li>
+                <li class="Navpage" ><a href=""><i class="fa-regular fa-bell"></i></a></li>
+                <li class="Navpage" ><i class="fa-solid fa-user"></i><a href="">Account</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="dashContent">
+    <section class="stocks">
+        <form action="" method="post" id="stockForm">
+            {% csrf_token %}
+            <h3 id="stock_list_h3" class="raleway-action">STOCK LIST</h3>
+            <!-- <input type="text" name="stockSym" id="customSym" placeholder="Enter Stock Name" autocomplete="off">
+            <button type="submit" id="customSearch"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;Search</button> -->
+        </form> 
+        <ul class="stock-list">
+            {% if AAPLdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('AAPL')">AAPL</a>
+                <p><data class="Br-Bl-diff">{{AAPLdiff|floatformat:4}}</data>&nbsp;&nbsp;{{AAPL|floatformat:4 }}</p>
+            </li>
+            {% if AMZNdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('AMZN')">AMZN</a>
+                <p><data class="Br-Bl-diff">{{AMZNdiff|floatformat:4}}</data>&nbsp;&nbsp;{{AMZN|floatformat:4 }}</p>
+            </li>
+            {% if NFLXdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('NFLX')">NFLX</a>
+                <p><data class="Br-Bl-diff">{{NFLXdiff|floatformat:4}}</data>&nbsp;&nbsp;{{NFLX|floatformat:4 }}</p>
+            </li>
+            {% if BRKBdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('BRK-B')">BRK-B</a>
+                <p><data class="Br-Bl-diff">{{BRKBdiff|floatformat:4}}</data>&nbsp;&nbsp;{{BRKB|floatformat:4 }}</p>
+            </li>
+            {% if NVDAdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('NVDA')">NVDA</a>
+                <p><data class="Br-Bl-diff">{{NVDAdiff|floatformat:4}}</data>&nbsp;&nbsp;{{NVDA|floatformat:4 }}</p>
+            </li>
+            {% if JPMdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('JPM')">JPM</a>
+                <p><data class="Br-Bl-diff">{{JPMdiff|floatformat:4}}</data>&nbsp;&nbsp;{{JPM|floatformat:4 }}</p>
+            </li>
+            {% if TSLAdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('TSLA')">TSLA</a>
+                <p><data class="Br-Bl-diff">{{TSLAdiff|floatformat:4}}</data>&nbsp;&nbsp;{{TSLA|floatformat:4 }}</p>
+            </li>
+            {% if METAdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('META')">META</a>
+                <p><data class="Br-Bl-diff">{{METAdiff|floatformat:4}}</data>&nbsp;&nbsp;{{META|floatformat:4 }}</p>
+            </li>
+            {% if MSFTdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('MSFT')">MSFT</a>
+                <p><data class="Br-Bl-diff">{{MSFTdiff|floatformat:4}}</data>&nbsp;&nbsp;{{MSFT|floatformat:4 }}</p>
+            </li>
+            {% if GOOGdiff < 0 %}
+            <li class="Bearish">
+            {% else %}
+            <li class="Bullish">
+            {% endif %}
+                <a href="javascript:void(0);" onclick="generateGraph('GOOGL')">GOOGL</a>
+                <p><data class="Br-Bl-diff">{{GOOGdiff|floatformat:4}}</data>&nbsp;&nbsp;{{GOOG|floatformat:4 }}</p>
+            </li>
+        </ul>
+        <div class="chatBot" style="display: none;">
+            <h4>STOCK INFO</h4>
+            <div class="chat"></div>
+            <div id="loading" class="loading" style="display: none;">Loading...</div>
+            <form action="">
+                <input type="text" name="" id="chatBox" placeholder="Ask AI" autocomplete="off">
+                <button type="submit" id="btnChat">&uarr;</button>
+            </form>
+        </div>
+        <button type="button" class="ai-button" style="display: none;">AI Support</button>
+    </section>
+    <main>
+        <section id="graphAttrs" >
+            <input type="text" id="SymValue" style="text-align: center;" value="Stock">
+            <select name="graph-type" id="graph-type" class="raleway-action">
+                <option value="candle">candle</option>
+                <option value="ohlc">ohlc</option>
+                <option value="line">line</option>
+            </select>
+            <label for="startDate" class="raleway-action">Start Date:</label>
+            <input type="date" name="startDate" id="start-date" value='2024-08-30'>
+            <label for="endDate" class="raleway-action">End Date:</label>
+            <input type="date" name="endDate" id="end-date" value='2024-12-30'>
+        </section>
+        <div id="stockGraph" class="fillContent">
+        </div>
+    </main>
+    </div>
+    <script src="https://kit.fontawesome.com/2736a647ec.js" crossorigin="anonymous"></script>
+    <script>
+
+        // TOGGLE ACTIVE (orange color) IN NAVBAR
+
+        document.querySelectorAll('.Navpage').forEach((item)=>{
+            item.addEventListener('click',function (event){
+                event.preventDefault()
+                document.querySelectorAll('.Navpage').forEach((elem)=>{
+                    elem.classList.remove('Active');
+                })
+                this.classList.add('Active');
+            });
+        });
+
+        // FORM TO SEARCH STOCK
+
+        const form = document.getElementById('stockForm');
+        form.addEventListener('submit',function(event){
+            event.preventDefault();
+            const sym = document.getElementById('customSym');
+            generateGraph(sym.value);
+            sym.value='';
+        })
+
+        // START AND END DATE
+
+        var StartDate,EndDate
+        function StartDatefunc() {
+            StartDate = document.getElementById('start-date').value;
+        }
+        function EndDatefunc() {
+            EndDate = document.getElementById('end-date').value;
+        }
+
+        // GRAPH PLACEHOLDER
+
+        const graphDiv = document.getElementById('stockGraph');
+        document.addEventListener('DOMContentLoaded', () => {
+            generateGraph('^NSEI')
+        });
+
+
+        // Generating GRAPH
+
+        function generateGraph(symbol) {
+        document.getElementById('SymValue').value = symbol;
+
+        // getting start and end date for graph
+        StartDatefunc();
+        EndDatefunc();
+        fetch(`/stock-graph/${symbol}/${StartDate}/${EndDate}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.data && data.data.length > 0) {
+
+        // Changing title value
+        document.getElementsByTagName('title')[0].text = `Zerodha-${symbol}`
+        
+        const closeValues = data.data[0].close.flat();
+        const highValues = data.data[0].high.flat();
+        const lowValues = data.data[0].low.flat();
+        const openValues = data.data[0].open.flat();
+        const dates = data.data[0].x;
+
+        // selecting graph type
+        const graphType = document.getElementById('graph-type').value
+
+        var trace1
+        var layout
+        switch (graphType) {
+            case 'candle':
+                trace1 = {
+                x: dates,
+                close: closeValues,
+                high: highValues,
+                low: lowValues,
+                open: openValues,
+                type: 'candlestick',
+                increasing: { line: { color: 'green' } },
+                decreasing: { line: { color: 'red' } }
+                };
+                layout = {
+                title: `${symbol} candlestick representation`,
+                xaxis: { title:''},
+                yaxis: { title: 'Price' }
+                };
+                break;
+            case 'ohlc':
+            trace1 = {
+                x: dates,
+                close: closeValues,
+                high: highValues,
+                low: lowValues,
+                open: openValues,
+                type: 'ohlc',
+                increasing: { line: { color: 'green' } },
+                decreasing: { line: { color: 'red' } }
+                };
+                layout = {
+                title: `${symbol} OHLC representation`,
+                xaxis: { title:''},
+                yaxis: { title: 'Price' }
+                };
+                break;
+            case 'line':
+                trace1 = {
+                x: dates,
+                y: closeValues,
+                mode: 'lines',
+                name: 'Close Price',
+                line: { color: 'green' }
+                };
+
+                layout = {
+                title: `${symbol} Line representation`,
+                xaxis: { title: 'Date' },
+                yaxis: { title: 'Price' }
+                };
+                break;
+            default:
+                break;
+        }
+
+        // plotting graph
+        Plotly.newPlot('stockGraph', [trace1], layout,{height: window.innerHeight * 0.8});
+    }else {
+        console.error("Data format issue: 'data' property is missing or empty");
+    }
+    })
+    .catch(error => {
+    console.error('Error fetching stock graph,May be due to unexpected Ticker or date range:', error);
+    });
+}
+
+    // GRAPH CHANGE
+
+    document.getElementById('graph-type').addEventListener('change', function() {
+        const symbol = document.getElementById('SymValue').value;
+        generateGraph(symbol);
+    });
+
+    // DATE CHANGE
+        // start date
+        document.getElementById('start-date').addEventListener('change',function(){
+            const symbol = document.getElementById('SymValue').value;
+            generateGraph(symbol);
+        })
+        // end date
+        document.getElementById('end-date').addEventListener('change',function(){
+            const symbol = document.getElementById('SymValue').value;
+            generateGraph(symbol);
+        })
+
+
+
+    // CHATBOT 
+    // const chatArea = document.getElementsByClassName('chat')[0];
+    // var message;
+    // var question;
+    // async function chatbot() {
+    //     const input = document.getElementById('chatBox'); // Get input value
+    //     question = input.value;
+    //     input.value = '';
+    //     const loadingElement = document.getElementById('loading');
+    //     loadingElement.style.display = 'block';
+    //     try {
+    //         const response = await fetch(`/chatbot/${encodeURIComponent(question)}`);
+    //         const data = await response.json();
+    //         data.answer = data.answer.replace(/\*/g, '');
+    //         message = data.answer;
+    //         loadingElement.style.display = 'none';
+    //     }
+    //     catch (error) {
+    //         console.error('Error fetching Response:', error);
+    //         message = 'Sorry, there was an error processing your request.';
+    //         loadingElement.style.display = 'none';
+    //     }
+
+    //     const resp = document.createElement('p');
+    //     resp.innerHTML = message;
+    //     resp.classList.add('resp');
+    //     chatArea.appendChild(resp);
+    //     }
+
+    // const chatBtn = document.getElementById('btnChat');
+
+    // chatBtn.addEventListener('click', (e) => {
+    //     e.preventDefault();
+    //     const req = document.createElement('p');
+    //     question = document.getElementById('chatBox').value
+    //     req.innerHTML = question;
+    //     req.classList.add('req');
+    //     chatArea.appendChild(req);
+    //     chatbot();
+    // })
+
+
+    // const AiSupport = document.getElementsByClassName('ai-button')[0]; // AI Support Button
+    // const AiChat =  document.getElementsByClassName('chatBot')[0];  // Chat Div
+    // AiSupport.addEventListener('click',()=>{
+    //     if(AiSupport.innerHTML==='AI Support'){
+    //         AiSupport.innerHTML= 'Close Chat';
+    //         AiChat.style.display = 'flex';
+    //     }else{
+    //         AiSupport.innerHTML= 'AI Support';
+    //         AiChat.style.display = 'none'; 
+    //     }
+    // })
+    </script>
+</body>
+</html>
