@@ -1,9 +1,8 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse,HttpResponse
-import yfinance as yf
 from openai import OpenAI
 from . import models
-
+import yfinance as yf
 
 def generate_stock_graph(request,symbol,start='2024-08-30',end='2024-12-30'):
 

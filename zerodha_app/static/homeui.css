@@ -191,9 +191,10 @@ main>section>select {
 
 #graphAttrs {
     padding: .5rem;
-    width: 100%;
     border-bottom: 1px solid #45403f2b;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
 }
 
 

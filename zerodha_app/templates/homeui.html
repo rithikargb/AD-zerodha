@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
-<body>
+<body class="darkMode">
     <nav>
         <div class="leftNav">
             <p id="Nifty" onclick="generateGraph('^NSEI')">NIFTY 50 <data id="n50-points">{{nifty|floatformat:4 }}  &nbsp;<data class="diff">{{ nifty_diff|floatformat:2 }}</data></data></p>
@@ -23,7 +23,6 @@
                 <polygon class="cls-1" points="30 0 0 30 30 60 60 30 90 0 30 0"/>
                 <polygon class="cls-2" points="30 60 60 30 90 60 30 60"/>
             </svg>
-            
         </div>
         <div class="rightNav raleway-action">
             <ul class="Actions-rightNav">
@@ -151,6 +150,9 @@
             <input type="date" name="startDate" id="start-date" value='2024-08-30'>
             <label for="endDate" class="raleway-action">End Date:</label>
             <input type="date" name="endDate" id="end-date" value='2024-12-30'>
+            <select name="study" id="study" class="raleway-action">
+                <option value="study">study</option>
+            </select>
         </section>
         <div id="stockGraph" class="fillContent">
         </div>
@@ -236,11 +238,12 @@
                 open: openValues,
                 type: 'candlestick',
                 increasing: { line: { color: 'green' } },
-                decreasing: { line: { color: 'red' } }
+                decreasing: { line: { color: 'red' } },
+                connectgaps:true,
                 };
                 layout = {
                 title: `${symbol} candlestick representation`,
-                xaxis: { title:''},
+                xaxis: { title:'',type: 'category',dtick:5},
                 yaxis: { title: 'Price' }
                 };
                 break;
@@ -253,11 +256,12 @@
                 open: openValues,
                 type: 'ohlc',
                 increasing: { line: { color: 'green' } },
-                decreasing: { line: { color: 'red' } }
+                decreasing: { line: { color: 'red' } },
+                connectgaps:true
                 };
                 layout = {
                 title: `${symbol} OHLC representation`,
-                xaxis: { title:''},
+                xaxis: { title:'',type: 'category',dtick:5},
                 yaxis: { title: 'Price' }
                 };
                 break;
