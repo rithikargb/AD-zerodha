@@ -140,19 +140,19 @@
     </section>
     <main>
         <section id="graphAttrs" >
-            <input type="text" id="SymValue" style="text-align: center;" value="Stock">
+            <input type="text" id="SymValue" style="text-align: center;" value="Stock" disabled>
             <select name="graph-type" id="graph-type" class="raleway-action">
                 <option value="candle">candle</option>
                 <option value="ohlc">ohlc</option>
                 <option value="line">line</option>
+                <option value="sma">SMA 20</option>
+                <option value="rsi">RSI</option>
+                <option value="bband">Bollinger</option>
             </select>
             <label for="startDate" class="raleway-action">Start Date:</label>
             <input type="date" name="startDate" id="start-date" value='2024-08-30'>
             <label for="endDate" class="raleway-action">End Date:</label>
             <input type="date" name="endDate" id="end-date" value='2024-12-30'>
-            <select name="study" id="study" class="raleway-action">
-                <option value="study">study</option>
-            </select>
         </section>
         <div id="stockGraph" class="fillContent">
         </div>
@@ -197,103 +197,229 @@
 
         const graphDiv = document.getElementById('stockGraph');
         document.addEventListener('DOMContentLoaded', () => {
-            generateGraph('^NSEI')
+            generateGraph('AAPL')
         });
 
 
         // Generating GRAPH
 
-        function generateGraph(symbol) {
+    function generateGraph(symbol) {
         document.getElementById('SymValue').value = symbol;
 
-        // getting start and end date for graph
+        // Getting start and end dates for the graph
         StartDatefunc();
         EndDatefunc();
+
         fetch(`/stock-graph/${symbol}/${StartDate}/${EndDate}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.data && data.data.length > 0) {
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.data) {
 
-        // Changing title value
-        document.getElementsByTagName('title')[0].text = `Zerodha-${symbol}`
-        
-        const closeValues = data.data[0].close.flat();
-        const highValues = data.data[0].high.flat();
-        const lowValues = data.data[0].low.flat();
-        const openValues = data.data[0].open.flat();
-        const dates = data.data[0].x;
+                const closeValues = data.data.close;
+                const highValues = data.data.high;
+                const lowValues = data.data.low;
+                const openValues = data.data.open;
+                const dates = data.data.x;
+                const rsiValues = data.data.rsi;
+                const smaValues = data.data.sma;
+                const bbUpperValues = data.data.bb_upper;
+                const bbLowerValues = data.data.bb_lower;
 
-        // selecting graph type
-        const graphType = document.getElementById('graph-type').value
+                // Update page title
+                document.getElementsByTagName('title')[0].text = `Zerodha - ${symbol}`;
 
-        var trace1
-        var layout
-        switch (graphType) {
-            case 'candle':
-                trace1 = {
-                x: dates,
-                close: closeValues,
-                high: highValues,
-                low: lowValues,
-                open: openValues,
-                type: 'candlestick',
-                increasing: { line: { color: 'green' } },
-                decreasing: { line: { color: 'red' } },
-                connectgaps:true,
-                };
-                layout = {
-                title: `${symbol} candlestick representation`,
-                xaxis: { title:'',type: 'category',dtick:5},
-                yaxis: { title: 'Price' }
-                };
-                break;
-            case 'ohlc':
-            trace1 = {
-                x: dates,
-                close: closeValues,
-                high: highValues,
-                low: lowValues,
-                open: openValues,
-                type: 'ohlc',
-                increasing: { line: { color: 'green' } },
-                decreasing: { line: { color: 'red' } },
-                connectgaps:true
-                };
-                layout = {
-                title: `${symbol} OHLC representation`,
-                xaxis: { title:'',type: 'category',dtick:5},
-                yaxis: { title: 'Price' }
-                };
-                break;
-            case 'line':
-                trace1 = {
-                x: dates,
-                y: closeValues,
-                mode: 'lines',
-                name: 'Close Price',
-                line: { color: 'green' }
-                };
+                // Select graph type
+                const graphType = document.getElementById('graph-type').value;
 
-                layout = {
-                title: `${symbol} Line representation`,
-                xaxis: { title: 'Date' },
-                yaxis: { title: 'Price' }
-                };
-                break;
-            default:
-                break;
-        }
+                let trace1, trace2, trace3, trace4, trace5, layout;
 
-        // plotting graph
-        Plotly.newPlot('stockGraph', [trace1], layout,{height: window.innerHeight * 0.8});
-    }else {
-        console.error("Data format issue: 'data' property is missing or empty");
+                switch (graphType) {
+                    case 'candle':
+                        trace1 = {
+                            x: dates,
+                            close: closeValues,
+                            high: highValues,
+                            low: lowValues,
+                            open: openValues,
+                            type: 'candlestick',
+                            increasing: { line: { color: 'green' } },
+                            decreasing: { line: { color: 'red' } },
+                            connectgaps: true
+                        };
+                        layout = {
+                            title: `${symbol} Candlestick Representation`,
+                            xaxis: { title: '', type: 'category', dtick: 5 },
+                            yaxis: { title: 'Price' },
+                            legend: {
+                                x: 0.8,
+                                y: 1,
+                                traceorder: 'normal',
+                                font: { size: 12 },
+                                bgcolor: 'rgba(255, 255, 255, 0.75)'
+                            }
+                        };
+                        break;
+
+                    case 'ohlc':
+                        trace1 = {
+                            x: dates,
+                            close: closeValues,
+                            high: highValues,
+                            low: lowValues,
+                            open: openValues,
+                            type: 'ohlc',
+                            increasing: { line: { color: 'green' } },
+                            decreasing: { line: { color: 'red' } },
+                            connectgaps: true
+                        };
+                        layout = {
+                            title: `${symbol} OHLC Representation`,
+                            xaxis: { title: '', type: 'category', dtick: 5 },
+                            yaxis: { title: 'Price' },
+                            legend: {
+                                x: 0.8,
+                                y: 1,
+                                traceorder: 'normal',
+                                font: { size: 12 },
+                                bgcolor: 'rgba(255, 255, 255, 0.75)'
+                            }
+                        };
+                        break;
+
+                    case 'line':
+                        trace1 = {
+                            x: dates,
+                            y: closeValues,
+                            mode: 'lines',
+                            name: 'Close Price',
+                            line: { color: 'green' }
+                        };
+                        layout = {
+                            title: `${symbol} Line Representation`,
+                            xaxis: { title: 'Date' },
+                            yaxis: { title: 'Price' },
+                            legend: {
+                                x: 0.8,
+                                y: 1,
+                                traceorder: 'normal',
+                                font: { size: 12 },
+                                bgcolor: 'rgba(255, 255, 255, 0.75)'
+                            }
+                        };
+                        break;
+
+                    case 'bband':
+                        trace1 = {
+                            x: dates,
+                            y: closeValues,
+                            mode: 'lines',
+                            name: 'Close Price',
+                            line: { color: 'blue' }
+                        };
+                        trace2 = {
+                            x: dates,
+                            y: bbUpperValues,
+                            mode: 'lines',
+                            name: 'Bollinger Upper Band',
+                            line: { color: 'gray', dash: 'dash' }
+                        };
+
+                        trace3 = {
+                            x: dates,
+                            y: bbLowerValues,
+                            mode: 'lines',
+                            name: 'Bollinger Lower Band',
+                            line: { color: 'black', dash: 'dash' }
+                        };
+                        layout = {
+                            title: `${symbol} Bollinger Band`,
+                            xaxis: { title: 'Date' },
+                            yaxis: { title: 'Price' },
+                            legend: {
+                                x: 0.8,
+                                y: 1,
+                                traceorder: 'normal',
+                                font: { size: 12 },
+                                bgcolor: 'rgba(255, 255, 255, 0.75)'
+                            }
+                        };
+                        break;
+                    case 'rsi':
+                        console.log(rsiValues);
+                        trace1 = {
+                            x: dates,
+                            y: closeValues,
+                            mode: 'lines',
+                            name: 'Close Price',
+                            line: { color: 'blue' }
+                        };
+                        trace2 = {
+                            x: dates,
+                            y: rsiValues,
+                            mode: 'lines',
+                            name: 'RSI (Relative Strength Index)',
+                            line: { color: 'gray' }
+                        };
+                        layout = {
+                            title: `${symbol} RSI Representation`,
+                            xaxis: { title: 'Date' },
+                            yaxis: { title: 'RSI Value' },
+                            legend: {
+                                x: 0.8,
+                                y: 1,
+                                traceorder: 'normal',
+                                font: { size: 12 },
+                                bgcolor: 'rgba(255, 255, 255, 0.75)'
+                            }
+                        };
+                        break;
+                    case 'sma':
+                            trace1 = {
+                            x: dates,
+                            y: closeValues,
+                            mode: 'lines',
+                            name: 'Close Price',
+                            line: { color: 'blue' }
+                            };
+                            trace2 = {
+                                x: dates,
+                                y: smaValues,
+                                mode: 'lines',
+                                name: 'SMA (Simple Moving Average)',
+                                line: { color: 'gray' }
+                            };
+                            layout = {
+                            title: `${symbol} SMA Representation`,
+                            xaxis: { title: 'Date' },
+                            yaxis: { title: 'SMA Value'},
+                            legend: {
+                                x: 0.8,
+                                y: 1,
+                                traceorder: 'normal',
+                                font: { size: 12 },
+                                bgcolor: 'rgba(255, 255, 255, 0.75)'
+                            }
+                            };
+                            break;
+
+                    default:
+                        console.error('Invalid graph type selected');
+                        return;
+                }
+                const traces =
+                            graphType === 'bband' ? [trace1, trace2, trace3] : 
+                            graphType === 'sma' ? [trace1, trace2] : 
+                            graphType === 'rsi' ? [trace1, trace2] : [trace1];
+
+                Plotly.newPlot('stockGraph', traces, layout, { height: window.innerHeight * 0.8 });
+            } else {
+                console.error("Data format issue: 'data' property is missing or empty");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching stock graph. May be due to unexpected Ticker or date range:', error);
+        });
     }
-    })
-    .catch(error => {
-    console.error('Error fetching stock graph,May be due to unexpected Ticker or date range:', error);
-    });
-}
 
     // GRAPH CHANGE
 

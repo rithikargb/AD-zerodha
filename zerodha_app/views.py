@@ -3,10 +3,11 @@ from django.http import JsonResponse,HttpResponse
 from openai import OpenAI
 from . import models
 import yfinance as yf
+import pandas as pd
+import numpy as np
 
-def generate_stock_graph(request,symbol,start='2024-08-30',end='2024-12-30'):
-
-    data = models.stock_data.objects.filter(Ticker = symbol, Date__range = [start,end])
+def generate_stock_graph(request, symbol, start='2024-08-30', end='2024-12-30'):
+    data = models.stock_data.objects.filter(Ticker=symbol, Date__range=[start, end])
 
     open_values = [entry.Open for entry in data]
     high_values = [entry.High for entry in data]
@@ -14,13 +15,43 @@ def generate_stock_graph(request,symbol,start='2024-08-30',end='2024-12-30'):
     close_values = [entry.Close for entry in data]
     dates = [entry.Date.strftime('%Y-%m-%d') for entry in data]
 
-    fig_data = [{
-        'x': dates,
-        'open': open_values,
-        'high': high_values,
-        'low': low_values,
-        'close': close_values,
-    }]
+    # Create a DataFrame for calculations
+    df = pd.DataFrame({
+        'Date': dates,
+        'Open': open_values,
+        'High': high_values,
+        'Low': low_values,
+        'Close': close_values
+    })
+    delta = df['Close'].diff()
+    # Add technical indicators
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    # Calculate the rolling averages of gains and losses
+    avg_gain = gain.rolling(window=14).mean()
+    avg_loss = loss.rolling(window=14).mean()
+
+    # Calculate RSI
+    rs = avg_gain / avg_loss
+    df['RSI'] = 100 - (100 / (1 + rs))
+    df['SMA'] = df['Close'].rolling(20).mean()
+    df['BB_Upper'] = df['SMA'] + 2 * df['Close'].rolling(20).std()
+    df['BB_Lower'] = df['SMA'] - 2 * df['Close'].rolling(20).std()
+
+    df = df.dropna(subset=['RSI', 'SMA', 'BB_Upper', 'BB_Lower'])
+
+    fig_data = {
+        'x': df['Date'].tolist(),
+        'open': df['Open'].tolist(),
+        'high': df['High'].tolist(),
+        'low': df['Low'].tolist(),
+        'close': df['Close'].tolist(),
+        'rsi': df['RSI'].tolist(),
+        'sma': df['SMA'].tolist(),
+        'bb_upper': df['BB_Upper'].tolist(),
+        'bb_lower': df['BB_Lower'].tolist()
+    }
 
     return JsonResponse({'data': fig_data})
 
