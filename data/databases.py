@@ -14,4 +14,5 @@ for ticker in tickers:
     all_data = pd.concat([all_data, data])
 
 
-all_data.to_csv("C:/Users/KIIT/Desktop/historical_data_2020-2024.csv", index=True)
+all_data.to_csv("historical_data_2020-2024.csv", index=True)
+print("Data saved to historical_data_2020-2024.csv")
