@@ -7,15 +7,11 @@ from tensorflow.keras.layers import LSTM, Dense, Bidirectional, Attention, Dropo
 import tensorflow as tf
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow warnings
-
-# List of tickers to process
-tickers = ['AAPL', 'GOOGL', 'AMZN', 'MSFT']  # Modify this list as per your dataset
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+tickers = ['AAPL', 'GOOGL', 'AMZN', 'MSFT']
 
 epsilon = 0.01
 
-# Function to create dataset
 def create_dataset(data, time_step=60):
     X, y = [], []
     for i in range(len(data) - time_step - 1):
@@ -23,7 +19,7 @@ def create_dataset(data, time_step=60):
         y.append(data[i + time_step, 0])
     return np.array(X), np.array(y)
 
-# Function to build the ALSTM model
+
 def build_alstm_model(input_shape):
     inputs = Input(shape=input_shape)
     lstm_output = Bidirectional(LSTM(128, return_sequences=True))(inputs)
@@ -36,37 +32,29 @@ def build_alstm_model(input_shape):
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
 
-# Function to generate adversarial samples
 def generate_adversarial_samples(model, x_batch, y_batch, epsilon=0.01):
     x_batch_tensor = tf.convert_to_tensor(x_batch, dtype=tf.float32)
     y_batch_tensor = tf.convert_to_tensor(y_batch, dtype=tf.float32)
-
     loss_object = tf.keras.losses.MeanSquaredError()
-
     with tf.GradientTape() as tape:
         tape.watch(x_batch_tensor)
         predictions = model(x_batch_tensor, training=True)
         loss = loss_object(y_batch_tensor, predictions)
-    
     gradient = tape.gradient(loss, x_batch_tensor)
     adversarial_samples = x_batch_tensor + epsilon * tf.sign(gradient)
     return tf.clip_by_value(adversarial_samples, 0.0, 1.0)
 
-# Initialize empty dictionary to store predictions
 predictions = {}
 
-# Loop over each ticker and process
 for ticker in tickers:
-    # Load data for the ticker
-    data = pd.read_csv(f'historical_data_2020-2024.csv')  # Assuming files named by ticker
+    data = pd.read_csv(f'historical_data_2020-2024.csv')
     
     num_col = ['Close', 'Open', 'High', 'Low', 'Volume']
     data[num_col] = data[num_col].apply(pd.to_numeric, errors='coerce')
     data[num_col] = data[num_col].fillna(data[num_col].mean())
     data['Target'] = (data['Close'].shift(-1) > data['Close']).astype(int)
-    data = data[:-1]  # Drop last row for target column
+    data = data[:-1]
 
-    # Scaling the features
     scaler = MinMaxScaler()
     scaled_features = scaler.fit_transform(data[num_col])
 
@@ -74,13 +62,9 @@ for ticker in tickers:
     train_size = int(len(X) * 0.8)
     X_train, X_test = X[:train_size], X[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
-
-    # Build the ALSTM model for this ticker
     model = build_alstm_model(input_shape=(X_train.shape[1], X_train.shape[2]))
-
-    # Train the model
-    epochs = 5
-    batch_size = 128
+    epochs = 10
+    batch_size = 64
 
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1}/{epochs} - Ticker: {ticker}")
@@ -90,35 +74,24 @@ for ticker in tickers:
             x_batch = X_train[i:i + batch_size]
             y_batch = y_train[i:i + batch_size]
 
-            # Clean loss
             loss_clean = model.train_on_batch(x_batch, y_batch)
             clean_loss_sum += loss_clean
-
-            # Generate adversarial samples
             x_adversarial = generate_adversarial_samples(model, x_batch, y_batch)
             loss_adversarial = model.train_on_batch(x_adversarial, y_batch)
             adversarial_loss_sum += loss_adversarial
 
         print(f"Clean Loss: {clean_loss_sum / (len(X_train) // batch_size):.4f}, Adversarial Loss: {adversarial_loss_sum / (len(X_train) // batch_size):.4f}")
 
-    # Make predictions for this ticker
     y_pred = model.predict(X_test)
-
-    # Reshape y_pred to 2D
     y_pred = y_pred.reshape(-1, 1)
-
-    # Rescale predictions and test values
     y_pred_rescaled = scaler.inverse_transform(np.hstack((y_pred, np.zeros_like(y_pred), np.zeros_like(y_pred), np.zeros_like(y_pred), np.zeros_like(y_pred))))
     y_test_rescaled = scaler.inverse_transform(np.hstack((y_test.reshape(-1, 1), np.zeros_like(y_test.reshape(-1, 1)), np.zeros_like(y_test.reshape(-1, 1)), np.zeros_like(y_test.reshape(-1, 1)), np.zeros_like(y_test.reshape(-1, 1)))))
 
-
-    # Store predictions
     predictions[ticker] = {
         'predicted': y_pred_rescaled[:, 0],
         'actual': y_test_rescaled[:, 0]
     }
 
-# Display predictions for all tickers
 for ticker in tickers:
     print(f"Predicted Stock Prices for {ticker} (rescaled):", predictions[ticker]['predicted'][:5])
     print(f"Actual Stock Prices for {ticker} (rescaled):", predictions[ticker]['actual'][:5])
