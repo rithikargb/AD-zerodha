@@ -15,7 +15,6 @@ def generate_stock_graph(request, symbol, start='2024-08-30', end='2024-12-30'):
     close_values = [entry.Close for entry in data]
     dates = [entry.Date.strftime('%Y-%m-%d') for entry in data]
 
-    # Create a DataFrame for calculations
     df = pd.DataFrame({
         'Date': dates,
         'Open': open_values,
@@ -24,15 +23,12 @@ def generate_stock_graph(request, symbol, start='2024-08-30', end='2024-12-30'):
         'Close': close_values
     })
     delta = df['Close'].diff()
-    # Add technical indicators
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
 
-    # Calculate the rolling averages of gains and losses
     avg_gain = gain.rolling(window=14).mean()
     avg_loss = loss.rolling(window=14).mean()
 
-    # Calculate RSI
     rs = avg_gain / avg_loss
     df['RSI'] = 100 - (100 / (1 + rs))
     df['SMA'] = df['Close'].rolling(20).mean()
