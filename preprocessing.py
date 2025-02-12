@@ -1,97 +1,51 @@
-import os
-import numpy as np
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import LSTM, Dense, Bidirectional, Attention, Dropout, Input
-import tensorflow as tf
 
+# Load the data
+data = pd.read_csv('./historical_data_2020-2024.csv')  # Correct path
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# Check for NaN values in each column and print to debug
+print("NaN values per column before filling:")
+print(data.isna().sum())
 
-data = pd.read_csv('historical_data_2020-2024.csv')
+# Drop columns that are completely NaN (likely the unwanted ones like 'Close.11', 'High.11', etc.)
+data = data.dropna(axis=1, how='all')
 
-print("Missing values in original dataset:")
-print(data.isnull().sum())
+# Remove columns with a numeric suffix (Close.1, Close.2, etc.)
+data = data.loc[:, ~data.columns.str.contains(r'\.\d+$')]
 
-print("Unique tickers in the dataset:", data['Ticker'].unique())
+# Check the columns after cleanup
+print("Columns after dropping NaN-only and duplicate columns:")
+print(data.columns)
 
-tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'FB', 'TSLA', 'NFLX', 'NVDA', 'BRK-B', 'JPM']
+# Handle remaining NaNs in 'Ticker' column by filling them with 'Unknown'
+data['Ticker'] = data['Ticker'].fillna('Unknown')
 
-def preprocess_data(company_data):
-    num_col = ['Close', 'Open', 'High', 'Low', 'Volume']
-    
-    company_data[num_col] = company_data[num_col].apply(pd.to_numeric, errors='coerce')
-    
-    if company_data[num_col].isnull().any().any():
-        print(f"NaNs found before filling in {company_data['Ticker'].iloc[0]}.")
-        print(company_data[num_col].isnull().sum())
+# Check for NaN values again to ensure they were filled
+print("NaN values per column after filling:")
+print(data.isna().sum())
 
-    company_data[num_col] = company_data[num_col].fillna(company_data[num_col].mean())
+# Define the numeric columns to process
+num_col = ['Close', 'Open', 'High', 'Low', 'Volume']
 
-    if company_data[num_col].isnull().any().any():
-        print(f"NaNs still present after filling in {company_data['Ticker'].iloc[0]}.")
+# Convert numeric columns to proper type and handle NaNs by filling with the column mean
+data[num_col] = data[num_col].apply(pd.to_numeric, errors='coerce')  # Ensures columns are numeric
+data[num_col] = data[num_col].fillna(data[num_col].mean())  # Fill NaNs with the column mean
 
-    company_data['Target'] = (company_data['Close'].shift(-1) > company_data['Close']).astype(int)
-    
-    return company_data[:-1]
+# Check for NaN values again to ensure they were filled
+print("NaN values per column after filling numeric columns:")
+print(data.isna().sum())
 
-processed_data_dict = {}
-for ticker in tickers:
-    company_data = data[data['Ticker'] == ticker]
-    if company_data.empty:
-        print(f"No data found for {ticker}. Skipping...")
-        continue
-    processed_data_dict[ticker] = preprocess_data(company_data)
+# Now add the Target column (to predict if the next day's Close is higher)
+data['Target'] = (data['Close'].shift(-1) > data['Close']).astype(int)
 
-def create_datasets(processed_data, time_step=60):
-    X, y = [], []
-    scalers = {}
-    
-    for ticker, company_data in processed_data.items():
-        if company_data.empty:
-            print(f"Skipping scaling for {ticker} due to empty data.")
-            continue
-        
-        scaler = MinMaxScaler()
+# Drop the last row as it has no target (since the last row's target is shifted out)
+data = data[:-1]
 
-        if company_data[['Close', 'Open', 'High', 'Low', 'Volume']].isnull().any().any():
-            print(f"NaNs found in raw features for {ticker}.")
-            print(company_data.isnull().sum())
-            continue
-        
-        scaled_features = scaler.fit_transform(company_data[['Close', 'Open', 'High', 'Low', 'Volume']])
-        
+# Apply MinMaxScaler
+scaler = MinMaxScaler()
+scaled_features = scaler.fit_transform(data[num_col])
 
-        if np.isnan(scaled_features).any():
-            print(f"NaNs found in scaled features for {ticker}.")
-            continue
-        
-        scalers[ticker] = scaler
-        
-        for i in range(len(scaled_features) - time_step - 1):
-            X.append(scaled_features[i:(i + time_step)])
-            y.append(scaled_features[i + time_step, 0])
-            
-    return np.array(X), np.array(y), scalers
-
-X, y, scalers = create_datasets(processed_data_dict)
-
-if np.isnan(X).any():
-    print("NaNs found in X dataset.")
-if np.isnan(y).any():
-    print("NaNs found in y dataset.")
-
-if len(X) == 0 or len(y) == 0:
-    print("No valid training data was created. Exiting.")
-else:
-
-    train_size = int(len(X) * 0.8)
-    X_train, X_test = X[:train_size], X[train_size:]
-    y_train, y_test = y[:train_size], y[train_size:]
-
-    if np.isnan(X_train).any() or np.isnan(y_train).any():
-        print("NaNs found in training data.")
-        exit()
-
-    print("Data is ready for training.")
+# Now your dataset is ready for training
+print("Preprocessing completed successfully.")
