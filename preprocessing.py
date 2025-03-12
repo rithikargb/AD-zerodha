@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
-data = pd.read_csv('./historical_data_2020-2024.csv')  
+data = pd.read_csv('./ind_market_dataset.csv')  
 
 
 print("NaN values per column before filling:")

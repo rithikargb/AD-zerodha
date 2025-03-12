@@ -47,7 +47,7 @@ def generate_adversarial_samples(model, x_batch, y_batch, epsilon=0.01):
 predictions = {}
 
 for ticker in tickers:
-    data = pd.read_csv(f'historical_data_2020-2024.csv')
+    data = pd.read_csv(f'ind_market_dataset.csv')
     
     num_col = ['Close', 'Open', 'High', 'Low', 'Volume']
     data[num_col] = data[num_col].apply(pd.to_numeric, errors='coerce')
