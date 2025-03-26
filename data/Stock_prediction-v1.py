@@ -12,13 +12,15 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 tickers = ['HDFCBANK.NS', 'ICICIBANK.NS', 'INFY.NS', 'RELIANCE.NS', 'TCS.NS']
 epsilon = 0.01
 time_steps = 60
+epochs = 60
+batch_size = 64
 
 # Dataset creation with Open price target
 def create_dataset(data, time_step=60):
     X, y = [], []
     for i in range(len(data) - time_step - 1):
         X.append(data[i:(i + time_step)])
-        y.append(data[i + time_step, 1])
+        y.append(data[i + time_step, 1])  # Open price as target
     return np.array(X), np.array(y)
 
 # Model architecture
@@ -52,42 +54,43 @@ def generate_adversarial_samples(model, x_batch, y_batch, epsilon=0.01):
     
     return tf.clip_by_value(adversarial_samples, 0.0, 1.0)
 
-# Main execution
+# Metrics storage
 predictions = {}
 actual_open_prices = {}
+errors = []
+
+# Main execution
 for ticker in tickers:
-# Load data for current ticker
+    # Load data for current ticker
     data = pd.read_csv('/workspaces/AD-zerodha/data/ind_market_dataset.csv')
     ticker_data = data[data['Ticker'] == ticker]
     actual_open_prices[ticker] = ticker_data['Open'].iloc[-1]
 
-# Clean and normalize only the relevant ticker data
+    # Clean and normalize only the relevant ticker data
     num_cols = ['Close', 'Open', 'High', 'Low', 'Volume']
     ticker_data.loc[:, num_cols] = ticker_data[num_cols].apply(pd.to_numeric, errors='coerce')
     ticker_data.loc[:, num_cols] = ticker_data[num_cols].fillna(ticker_data[num_cols].mean())
     ticker_data = ticker_data[:-1]  # Remove last row to avoid NaN target
 
-# Use a separate scaler for each ticker
+    # Use a separate scaler for each ticker
     scaler = MinMaxScaler()
     scaled_data = scaler.fit_transform(ticker_data[num_cols])
 
-# Extract the Open price column separately for proper inverse scaling
+    # Extract the Open price column separately for proper inverse scaling
     open_scaler = MinMaxScaler()
     open_prices = ticker_data[['Open']].values
     open_scaler.fit(open_prices)
 
-# Create dataset
+    # Create dataset
     X, y = create_dataset(scaled_data, time_steps)
 
-# Split dataset
+    # Split dataset
     train_size = int(len(X) * 0.8)
     X_train, X_test = X[:train_size], X[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
 
-# Train model
+    # Train model
     model = build_alstm_model((X_train.shape[1], X_train.shape[2]))
-    epochs = 60
-    batch_size = 64
 
     for epoch in range(epochs):
         epoch_clean_loss = 0
@@ -96,11 +99,11 @@ for ticker in tickers:
             x_batch = X_train[i:i+batch_size].astype(np.float32)
             y_batch = y_train[i:i+batch_size].astype(np.float32)
 
-        # Clean batch training
+            # Clean batch training
             loss_clean = model.train_on_batch(x_batch, y_batch)
             epoch_clean_loss += loss_clean
 
-        # Adversarial training
+            # Adversarial training
             x_adv = generate_adversarial_samples(model, x_batch, y_batch, epsilon)
             loss_adv = model.train_on_batch(x_adv, y_batch)
             epoch_adv_loss += loss_adv
@@ -109,17 +112,24 @@ for ticker in tickers:
         print(f"Clean Loss: {epoch_clean_loss/len(X_train)*batch_size:.4f}")
         print(f"Adv Loss: {epoch_adv_loss/len(X_train)*batch_size:.4f}\n")
 
-# Prediction
+    # Prediction
     y_pred = model.predict(X_test).flatten()
 
-# Inverse transform Open price using the Open-price-specific scaler
+    # Inverse transform Open price using the Open-price-specific scaler
     rescaled_preds = open_scaler.inverse_transform(y_pred.reshape(-1, 1)).flatten()
 
-# Store best prediction (latest available)
+    # Store best prediction (latest available)
     predictions[ticker] = {
         'predicted_open': rescaled_preds[-1],
     }
 
+    # Compute error metrics
+    actual_open = actual_open_prices[ticker]
+    predicted_open = predictions[ticker]['predicted_open']
+    absolute_error = abs(actual_open - predicted_open)
+    percentage_error = (absolute_error / actual_open) * 100 if actual_open != 0 else 0
+
+    errors.append((absolute_error, percentage_error))
 
 # Display final results
 print("\nNext Day Opening Price Predictions:")
@@ -128,3 +138,10 @@ for ticker in tickers:
     last_open_price = actual_open_prices[ticker]  
     print(f" Actual Open price: ${last_open_price:.2f}")
     print(f" Predicted Open: ${predictions[ticker]['predicted_open']:.2f}")
+
+# Compute Mean Absolute Percentage Error (MAPE)
+absolute_errors, percentage_errors = zip(*errors)
+mape = np.mean(percentage_errors)  # MAPE as a single percentage
+
+print("\n===== Overall Model Accuracy =====")
+print(f"Accuracy: {100 - mape:.2f}%")
