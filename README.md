@@ -23,15 +23,22 @@
    pip install -r requirements.txt
    ```
 
+## Database Setup and Data Import
+- **Creating the Database Table**:
+  1. Ensure that Django is installed and the project is set up.
+  2. Run the command `python manage.py makemigrations` to create migrations for the `stock_data` model and set the name of the database to `zerodha_ad`.
+  Eg- For MySQL 
+  'ENGINE': 'django.db.backends.mysql',
+   'NAME': 'zerodha_ad',
+   'USER': <your_username>,
+   'PASSWORD': <your_password>,
+  3. Run the command `python manage.py migrate` to apply the migrations and create the table in the database.
+- **Importing Data from CSV**:
+  - Import into database.
+
 ## Running the Project
 1. Run the Django development server:
    ```bash
    python manage.py runserver
    ```
 2. Open your web browser and go to `http://127.0.0.1:8000/`.
-
-## Additional Notes
-- Ensure that your database is set up correctly in the `settings.py` file.
-- Migrate the database if necessary:
-   ```bash
-   python manage.py migrate
