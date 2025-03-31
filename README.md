@@ -27,6 +27,7 @@
 - **Creating the Database Table**:
   1. Ensure that Django is installed and the project is set up.
   2. Run the command `python manage.py makemigrations` to create migrations for the `stock_data` model and set the name of the database to `zerodha_ad`.
+  COnfigure the settings.py file to use the database you want to use.
   Eg- For MySQL 
   'ENGINE': 'django.db.backends.mysql',
    'NAME': 'zerodha_ad',
