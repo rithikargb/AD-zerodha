@@ -54,8 +54,8 @@
 - Data file requirements
   1. File: /workspaces/AD-zerodha/data/ind_market_dataset.csv
   2. Columns:
-     a. Ticker: Stock Symbol
-     b. Open, Close, High, Low, Volume: Numerical stock price data
+     1. Ticker: Stock Symbol
+     2. Open, Close, High, Low, Volume: Numerical stock price data
 
 - Hardware & Environment
   1. TensorFlow without GPU: The line os.environ["CUDA_VISIBLE_DEVICES"] = "-1" ensures that the code runs on CPU only.
@@ -65,7 +65,7 @@
   1. Preprocess the dataset by executing the preprocessing.py file.
   2. Run the Stock_prediction-v1.py in a Python environment (Jupyter, VSCode, or terminal).
   3. The model will:
-     a. Normalize the data.
-     b. Train on stock data with adversarial augmentation.
-     c. Predict the next day’s Open price for each ticker.
+     1. Normalize the data.
+     2. Train on stock data with adversarial augmentation.
+     3. Predict the next day’s Open price for each ticker.
   5. Output displayed on the terminal will show the actual vs. predicted Open prices.
