@@ -44,7 +44,7 @@
    ```
 2. Open your web browser and go to `http://127.0.0.1:8000/`.
 
-##Model Prerequisites
+## Model Prerequisites
 - Ensure that required python libraries are installed. Use the command-
   pip install numpy
   pip install pandas
