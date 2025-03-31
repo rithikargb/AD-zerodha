@@ -46,10 +46,18 @@
 
 ## Model Prerequisites
 - Ensure that required python libraries are installed. Use the command-
+  ```bash
   pip install numpy
+  ```
+  ```bash
   pip install pandas
+  ```
+  ```bash
   pip install scikit-learn
+  ```
+  ```bash
   pip install tensorflow
+  ```
 
 - Data file requirements
   1. File: /workspaces/AD-zerodha/data/ind_market_dataset.csv
